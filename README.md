@@ -34,6 +34,12 @@ npm run report      # abre o relatório HTML
 
 Para apontar para outro endereço: `BASE_URL=https://... npm test`.
 
+## Falhas esperadas na automação
+
+Alguns testes **falham de propósito**: eles reproduzem os bugs encontrados e carregam a anotação `bug`
+com o ID (BUG-001 a BUG-003, ver [`docs/bugs.md`](docs/bugs.md)). Quando o defeito for corrigido, o teste passa.
+O relatório HTML mostra a anotação em cada teste. Qualquer outra falha deve ser investigada.
+
 ## Decisões
 
 - O ambiente é compartilhado: poucos workers, **sem testes de carga, estresse ou segurança** (fora do escopo).

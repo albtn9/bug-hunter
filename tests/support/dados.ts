@@ -33,6 +33,7 @@ export interface CasoCalculo {
   frete: number;
   faltante: number;
   total: number;
+  bug?: string;
 }
 
 // Valores esperados calculados à mão (ver docs/cenarios/04-calculo-total.feature).
@@ -40,8 +41,8 @@ export const MATRIZ_CALCULO: CasoCalculo[] = [
   { nome: '#1 sem cupom, abaixo de 200', itens: [{ produtoId: 'P005', quantidade: 1 }], subtotal: 100, desconto: 0, frete: 19.9, faltante: 100, total: 119.9 },
   { nome: '#2 BEMVINDO10, abaixo de 200', itens: [{ produtoId: 'P005', quantidade: 1 }], cupom: 'BEMVINDO10', subtotal: 100, desconto: 10, frete: 19.9, faltante: 100, total: 109.9 },
   { nome: '#3 limite logo abaixo (199,80)', itens: [{ produtoId: 'P001', quantidade: 1 }, { produtoId: 'P002', quantidade: 1 }], subtotal: 199.8, desconto: 0, frete: 19.9, faltante: 0.2, total: 219.7 },
-  { nome: '#4 limite exato (200,00)', itens: [{ produtoId: 'P005', quantidade: 2 }], subtotal: 200, desconto: 0, frete: 0, faltante: 0, total: 200 },
-  { nome: '#5 200,00 com cupom (CA08)', itens: [{ produtoId: 'P005', quantidade: 2 }], cupom: 'BEMVINDO10', subtotal: 200, desconto: 20, frete: 0, faltante: 0, total: 180 },
+  { nome: '#4 limite exato (200,00)', itens: [{ produtoId: 'P005', quantidade: 2 }], subtotal: 200, desconto: 0, frete: 0, faltante: 0, total: 200, bug: 'BUG-001' },
+  { nome: '#5 200,00 com cupom (CA08)', itens: [{ produtoId: 'P005', quantidade: 2 }], cupom: 'BEMVINDO10', subtotal: 200, desconto: 20, frete: 0, faltante: 0, total: 180, bug: 'BUG-001' },
   { nome: '#6 P001x3 com cupom (arredondamento)', itens: [{ produtoId: 'P001', quantidade: 3 }], cupom: 'BEMVINDO10', subtotal: 179.7, desconto: 17.97, frete: 19.9, faltante: 20.3, total: 181.63 },
   { nome: '#7 P007 com cupom', itens: [{ produtoId: 'P007', quantidade: 1 }], cupom: 'BEMVINDO10', subtotal: 229.9, desconto: 22.99, frete: 0, faltante: 0, total: 206.91 },
   { nome: '#8 exemplo da documentação', itens: [{ produtoId: 'P002', quantidade: 1 }, { produtoId: 'P004', quantidade: 2 }], cupom: 'BEMVINDO10', subtotal: 239.7, desconto: 23.97, frete: 0, faltante: 0, total: 215.73 },

@@ -5,6 +5,7 @@ import { CUPONS, MATRIZ_CALCULO } from '../support/dados';
 test.describe('API | POST /api/carrinho/calcular | matriz de cálculo', () => {
   for (const c of MATRIZ_CALCULO) {
     test(`${c.nome}`, async ({ request }) => {
+      if (c.bug) test.info().annotations.push({ type: 'bug', description: c.bug });
       const resp = await request.post('/api/carrinho/calcular', {
         data: { itens: c.itens, ...(c.cupom ? { cupom: c.cupom } : {}) },
       });

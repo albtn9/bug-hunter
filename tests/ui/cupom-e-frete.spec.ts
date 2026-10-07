@@ -46,6 +46,7 @@ test.describe('UI | cupom de desconto e frete grátis', () => {
   });
 
   test('CA06 | subtotal de R$ 200,00 já tem frete grátis', async () => {
+    test.info().annotations.push({ type: 'bug', description: 'BUG-001' });
     await loja.adicionarProduto('Mochila Urbana 20L', 2);
     await loja.irParaCarrinhoPeloMenu();
 
@@ -61,6 +62,7 @@ test.describe('UI | cupom de desconto e frete grátis', () => {
   });
 
   test('CA08 | frete grátis considera o subtotal antes do desconto', async () => {
+    test.info().annotations.push({ type: 'bug', description: 'BUG-001' });
     await loja.adicionarProduto('Mochila Urbana 20L', 2);
     await loja.irParaCarrinhoPeloMenu();
     await loja.aplicarCupom('BEMVINDO10');

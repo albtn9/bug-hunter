@@ -56,6 +56,7 @@ test.describe('API | limite de quantidade (CA10)', () => {
 
   for (const quantidade of [6, 100]) {
     test(`quantidade ${quantidade} é recusada`, async ({ request }) => {
+      test.info().annotations.push({ type: 'bug', description: 'BUG-002 | CA10 em /api/carrinho/calcular' });
       const resp = await calcular(request, { itens: [{ produtoId: 'P004', quantidade }] });
       expect(resp.status()).toBe(422);
       const erro = (await resp.json()).erro;
@@ -73,6 +74,7 @@ test.describe('API | limite de quantidade (CA10)', () => {
   }
 
   test('limite também vale ao confirmar o pedido', async ({ request }) => {
+    test.info().annotations.push({ type: 'bug', description: 'BUG-003 | CA10 em /api/pedidos' });
     const resp = await request.post('/api/pedidos', {
       data: {
         cliente: { nome: 'Maria Silva', email: 'maria@exemplo.com', cep: '01310-100' },
