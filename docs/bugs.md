@@ -3,7 +3,7 @@
 Antes de reportar, conferi a seção "Sobre este ambiente" da documentação (carrinho só na aba, pedidos não armazenados,
 sem e-mail/cobrança, dados fixos, API sem estado). Nenhum dos bugs abaixo se enquadra nesses comportamentos esperados.
 
-Ambiente: Verzel Store v2.3.0 (card VZS-142), Chrome, execução em outubro/2026.
+Ambiente: Verzel Store v2.3.0 (card VZS-142), Chrome (UI), Postman e Playwright (API), execução em 07/10/2026.
 
 ## Resumo
 
@@ -28,6 +28,8 @@ Ambiente: Verzel Store v2.3.0 (card VZS-142), Chrome, execução em outubro/2026
 2. Abrir o carrinho.
 3. (Opcional) Aplicar o cupom `BEMVINDO10`.
 
+Na API: `POST /api/carrinho/calcular` com `{ "itens": [{ "produtoId": "P005", "quantidade": 2 }] }`.
+
 **Resultado esperado**
 
 - Sem cupom: subtotal R$ 200,00, frete R$ 0,00 (grátis), total R$ 200,00.
@@ -37,20 +39,25 @@ Ambiente: Verzel Store v2.3.0 (card VZS-142), Chrome, execução em outubro/2026
 
 - Sem cupom: subtotal R$ 200,00, frete **R$ 19,90**, total **R$ 219,90**.
 - Com `BEMVINDO10`: desconto R$ 20,00, frete **R$ 19,90**, total **R$ 199,90**.
-- A própria tela exibe "Faltam R$ 0,00 para o frete grátis", contradizendo a cobrança do frete.
+- A tela exibe "Faltam R$ 0,00 para o frete grátis", contradizendo a cobrança do frete.
+- Na API: `frete: 19.9`, `freteGratis: false` e `valorFaltanteFreteGratis: 0` na mesma resposta.
 
 **Análise**
 
 - O desconto está correto (R$ 20,00); o erro está só na regra do frete.
-- O "valor que falta" é calculado com `>= 200` (resulta em 0) e a regra do frete parece usar `> 200`. As duas regras se contradizem.
-- Valores acima de R$ 200,00 (R$ 206,91, R$ 215,73, R$ 229,90) calculam o frete grátis corretamente, o que isola o defeito no limite exato.
-- Reproduzido também com `P008 × 4` (R$ 200,00).
+- A API se contradiz: informa que não falta nada para o frete grátis (`valorFaltanteFreteGratis: 0`, regra `>= 200`) e,
+  ao mesmo tempo, cobra o frete (`freteGratis: false`, regra aparentemente `> 200`).
+- Subtotais acima de R$ 200,00 (R$ 219,80, R$ 229,90 e R$ 239,70) calculam o frete grátis corretamente,
+  e o subtotal de R$ 199,80 cobra o frete corretamente. Isso isola o defeito no valor exato do limite.
+- Reproduzido também com `P008 × 4` (subtotal R$ 200,00).
 
 **Evidências**
 
-- `evidencias/BUG-001-ui-frete-subtotal-200.png`
+- `evidencias/BUG-001-ui-frete-subtotal-200-sem-cupom.png`
 - `evidencias/BUG-001-ui-frete-subtotal-200-com-cupom.png`
+- `evidencias/BUG-001-api-calcular-subtotal-200.png`
 - Testes automatizados que falham: `tests/api/calculo.spec.ts` (casos #4 e #5) e `tests/api/frete-limite.spec.ts`
+  (`P005 × 2` e `P008 × 4`)
 
 ---
 
@@ -68,7 +75,7 @@ Ambiente: Verzel Store v2.3.0 (card VZS-142), Chrome, execução em outubro/2026
 { "itens": [{ "produtoId": "P004", "quantidade": 6 }] }
 ```
 
-2. Repetir com `"quantidade": 100`.
+2. Repetir com quantidades maiores: `P002 × 12` + `P004 × 21` (com `BEMVINDO10`) e `P002`, `P004` e `P001` com `× 100` cada.
 
 **Resultado esperado**
 
@@ -76,8 +83,11 @@ Ambiente: Verzel Store v2.3.0 (card VZS-142), Chrome, execução em outubro/2026
 
 **Resultado obtido**
 
-- Status **200**, a API calcula o carrinho normalmente com a quantidade acima do limite.
-- Subtotal devolvido para 6 unidades: `[preencher]`; para 100 unidades: `[preencher]`.
+Status **200** em todas as chamadas; a API calcula o carrinho normalmente acima do limite:
+
+- `P004 × 6`: subtotal R$ 299,40, frete grátis, total R$ 299,40.
+- `P002 × 12` + `P004 × 21` com `BEMVINDO10`: subtotal R$ 2.726,70, desconto R$ 272,67, total R$ 2.454,03.
+- `P002`, `P004` e `P001` × 100 cada, com `BEMVINDO10`: subtotal R$ 24.970,00, desconto R$ 2.497,00, total R$ 22.473,00.
 
 **Observações**
 
@@ -86,7 +96,9 @@ Ambiente: Verzel Store v2.3.0 (card VZS-142), Chrome, execução em outubro/2026
 
 **Evidências**
 
-- `evidencias/BUG-002-api-calcular-quantidade-6.png` (resposta da chamada)
+- `evidencias/BUG-002-api-calcular-quantidade-6.png`
+- `evidencias/BUG-002-api-calcular-quantidades-12-e-21.png`
+- `evidencias/BUG-002-api-calcular-quantidade-100-tres-produtos.png`
 - Testes automatizados que falham: `tests/api/cupom-e-quantidade.spec.ts` ("quantidade 6 é recusada" e "quantidade 100 é recusada")
 
 ---
@@ -115,7 +127,8 @@ Ambiente: Verzel Store v2.3.0 (card VZS-142), Chrome, execução em outubro/2026
 
 **Resultado obtido**
 
-- Status **201**, com número de pedido gerado (`VZ-......`): `[preencher o número devolvido]`.
+- Status **201 Created**, pedido confirmado com número `VZ-908998` (criadoEm `2026-10-07T22:43:49.903Z`),
+  `quantidade: 6`, subtotal R$ 299,40, frete grátis e total R$ 299,40.
 
 **Evidências**
 
@@ -126,4 +139,6 @@ Ambiente: Verzel Store v2.3.0 (card VZS-142), Chrome, execução em outubro/2026
 
 ## Observação sobre o que passou
 
-Os critérios CA01, CA02, CA03, CA04, CA07 e CA09, o cálculo dos demais casos da matriz (8 de 10), a validação de quantidades inválidas e o limite de 5 unidades na interface passaram sem divergência.
+Os critérios CA01, CA02, CA03, CA04, CA07 e CA09, o cálculo dos demais casos da matriz (8 de 10), a validação de quantidades inválidas
+e o limite de 5 unidades na interface passaram sem divergência. O pedido com dados válidos dentro do limite
+(5 Camisetas, pedido `VZ-298028`) também foi confirmado corretamente.
