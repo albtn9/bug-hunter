@@ -1,15 +1,13 @@
 # Evidências da execução
 
-Arquivos em [`../evidencias/`](../evidencias). HTML das telas usado para os seletores em [`dom-referencia/`](dom-referencia).
-
 ## 1. Automação (Playwright)
 
-- **Data:** 07/10/2026
-- **Comandos:** `npm run test:api` e `npm run test:ui`
-- **Ambiente:** Verzel Store v2.3.0, Chromium (UI), 2 workers
+- Data: 07/10/2026
+- Comandos: `npm run test:api` e `npm run test:ui`
+- Ambiente: Verzel Store v2.3.0, Chromium, 2 workers
 
 | Projeto | Total | Passou | Falhou |
-|---|---|---|---|
+|---|---:|---:|---:|
 | API | 57 | 50 | 7 |
 | UI | 34 | 32 | 2 |
 
@@ -28,14 +26,6 @@ As 9 falhas correspondem aos bugs reportados em [`bugs.md`](bugs.md). Nenhuma ou
 | UI | `cupom-e-frete.spec.ts` CA08 frete considera subtotal antes do desconto | BUG-001 | frete "R$ 19,90" (esperado "Grátis") |
 
 Os testes de controle que passam delimitam o defeito: subtotal R$ 199,80 (cobra frete) e R$ 219,80 (frete grátis).
-
-**Arquivos a anexar (a partir da pasta `test-results/` e do relatório HTML):**
-
-| Arquivo | O que mostra |
-|---|---|
-| `evidencias/automacao-relatorio-html.png` | Relatório do `npx playwright show-report` com as falhas e a anotação `bug` |
-| `evidencias/BUG-001-playwright-ui-ca06.png` | Screenshot da falha do teste de UI do CA06 |
-| `evidencias/BUG-001-playwright-ui-ca08.png` | Screenshot da falha do teste de UI do CA08 |
 
 ## 2. Evidências manuais
 

@@ -12,6 +12,8 @@ Ambiente: Verzel Store v2.3.0 (card VZS-142), Chrome (UI), Postman e Playwright 
 | BUG-001 | Frete cobrado quando o subtotal é exatamente R$ 200,00 | Alta | Alta | CA06, CA08 | UI e API |
 | BUG-002 | `/api/carrinho/calcular` aceita mais de 5 unidades do mesmo produto | Média | Média | CA10 | API |
 | BUG-003 | `/api/pedidos` confirma pedido com mais de 5 unidades do mesmo produto | Alta | Alta | CA10 | API |
+| BUG-004 | Item vazio na API retorna erro de produto inexistente em vez de item inválido | Baixa | Média | Validação de entrada / contrato da API | API |
+
 
 ---
 
@@ -140,8 +142,44 @@ Status **200** em todas as chamadas; a API calcula o carrinho normalmente acima 
 
 ---
 
+
+## BUG-004 | Item vazio na API retorna erro de produto inexistente em vez de item inválido
+
+* **Severidade / Prioridade:** Baixa / Média (mensagem de erro inadequada para uma estrutura de item incompleta; não foi demonstrado impacto além da validação da requisição)
+* **Onde:** API `POST /api/carrinho/calcular`
+* **Relacionado:** validação da estrutura dos itens enviados na requisição
+
+**Passos para reproduzir**
+
+1. Enviar `POST /api/carrinho/calcular` com `Content-Type: application/json` e o corpo:
+
+```json
+{
+  "itens": [{}]
+}
+```
+
+2. Repetir a chamada para confirmar o comportamento.
+
+**Resultado esperado**
+
+* A API deve rejeitar o item incompleto com um erro de validação que identifique a estrutura inválida do item, de forma consistente com a validação aplicada a outros formatos inválidos.
+
+**Resultado obtido**
+
+* A API retorna erro `PRODUTO_NAO_ENCONTRADO`, com a mensagem `"Produto undefined não encontrado."` e o campo `itens[0].produtoId`.
+
+**Evidências**
+
+* Registrar a resposta da requisição `{"itens":[{}]}` no Postman ou em outra ferramenta utilizada nos testes.
+
+**Observação**
+
+* O comportamento foi reproduzido em uma segunda execução isolada.
+* Para `{"itens":[null]}` e `{"itens":[["P004"]]}`, a API retorna `ITEM_INVALIDO`, com a mensagem de que cada item deve ser um objeto com `produtoId` e `quantidade`.
+* A documentação consultada não especifica explicitamente a resposta esperada para `{"itens":[{}]}`. Por isso, este caso deve ser apresentado como uma inconsistência de validação a ser confirmada com o contrato da API, e não como uma violação inequívoca de um critério de aceite.
+
+---
 ## Observação sobre o que passou
 
-Os critérios CA01, CA02, CA03, CA04, CA07 e CA09, o cálculo dos demais casos da matriz (8 de 10), a validação de quantidades inválidas
-e o limite de 5 unidades na interface passaram sem divergência. O pedido com dados válidos dentro do limite
-(5 Camisetas, pedido `VZ-298028`) também foi confirmado corretamente.
+Os critérios CA01, CA02, CA03, CA04, CA07 e CA09, os demais casos aprovados da matriz, a validação de quantidades inválidas e o limite de 5 unidades na interface passaram sem divergência. Foram registrados os BUG-001, BUG-002 e BUG-003, relacionados ao frete e ao limite de quantidade na API, além do BUG-004, referente à validação de um item vazio, cuja expectativa ainda precisa ser confirmada com o contrato da API.
