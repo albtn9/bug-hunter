@@ -2,7 +2,7 @@ import { expect, Locator, Page } from '@playwright/test';
 import { ResumoPedido } from './resumo.component';
 
 /**
- * Página /pedido-confirmado (DOM em docs/dom-referencia/pedido-confirmado.html):
+ * Página /pedido-confirmado 
  * selo "Pedido confirmado", <h1>Pedido <span class="numero-pedido">VZ-000000</span></h1>,
  * resumo com data-valor e lista de itens ("2x Camiseta Essencial").
  */

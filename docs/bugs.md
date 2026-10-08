@@ -163,23 +163,18 @@ Status **200** em todas as chamadas; a API calcula o carrinho normalmente acima 
 
 **Resultado esperado**
 
-* A API deve rejeitar o item incompleto com um erro de validação que identifique a estrutura inválida do item, de forma consistente com a validação aplicada a outros formatos inválidos.
+* Erro `ITEM_INVALIDO`. A tabela de erros da documentação define esse código como "Um item não é um objeto com produtoId e quantidade", e `{}` é um objeto sem esses dois campos.
 
 **Resultado obtido**
 
-* A API retorna erro `PRODUTO_NAO_ENCONTRADO`, com a mensagem `"Produto undefined não encontrado."` e o campo `itens[0].produtoId`.
+* Erro `PRODUTO_NAO_ENCONTRADO`, mensagem `"Produto undefined não encontrado."` e campo `itens[0].produtoId`.
 
 **Evidências**
 
-* Registrar a resposta da requisição `{"itens":[{}]}` no Postman ou em outra ferramenta utilizada nos testes.
+* `evidencias/BUG-004-api-calcular-item-vazio.png`
 
-**Observação**
+**Observações**
 
-* O comportamento foi reproduzido em uma segunda execução isolada.
-* Para `{"itens":[null]}` e `{"itens":[["P004"]]}`, a API retorna `ITEM_INVALIDO`, com a mensagem de que cada item deve ser um objeto com `produtoId` e `quantidade`.
-* A documentação consultada não especifica explicitamente a resposta esperada para `{"itens":[{}]}`. Por isso, este caso deve ser apresentado como uma inconsistência de validação a ser confirmada com o contrato da API, e não como uma violação inequívoca de um critério de aceite.
-
----
-## Observação sobre o que passou
-
-Os critérios CA01, CA02, CA03, CA04, CA07 e CA09, os demais casos aprovados da matriz, a validação de quantidades inválidas e o limite de 5 unidades na interface passaram sem divergência. Foram registrados os BUG-001, BUG-002 e BUG-003, relacionados ao frete e ao limite de quantidade na API, além do BUG-004, referente à validação de um item vazio, cuja expectativa ainda precisa ser confirmada com o contrato da API.
+* Reproduzido em duas execuções.
+* Para `{"itens":[null]}` e `{"itens":[["P004"]]}` a API retorna `ITEM_INVALIDO`, com a mensagem de que cada item deve ser um objeto com `produtoId` e `quantidade`. Só o objeto vazio cai no erro de produto inexistente e expõe `undefined` na mensagem.
+* A documentação não cita o caso `{}` explicitamente; a expectativa decorre da definição de `ITEM_INVALIDO`.
