@@ -1,28 +1,16 @@
-import { test, expect } from '@playwright/test';
-import { LojaPage } from '../support/loja.page';
+import { PRODUTOS } from '../support/dados';
+import { expect, test } from '../support/fixtures';
 
 // Cenário: docs/cenarios/03-limite-quantidade.feature (CA10 na interface)
-// O carrinho usa botões "−" e "+" (não há campo numérico). Na execução manual, o "+" ficou
-// desabilitado em 5 unidades e a linha exibiu "Limite de 5 unidades por produto.".
-test('CA10 | interface bloqueia a 6ª unidade do mesmo produto', async ({ page }) => {
-  const loja = new LojaPage(page);
-  await loja.abrirProdutos();
-  await loja.adicionarProduto('Boné Aba Curva');
-  await loja.irParaCarrinhoPeloMenu();
+const bone = PRODUTOS.P004.nome;
 
-  // AJUSTAR: nome acessível do botão "+" (use `npx playwright codegen` para confirmar).
-  const linha = page
-    .locator('li, article, div')
-    .filter({ hasText: 'Boné Aba Curva' })
-    .filter({ has: page.getByRole('button', { name: /^\+$|aumentar|mais/i }) })
-    .last();
-  const mais = linha.getByRole('button', { name: /^\+$|aumentar|mais/i });
+test('CA10 | interface bloqueia a 6ª unidade do mesmo produto', async ({ carrinhoCom, carrinho }) => {
+  await carrinhoCom([{ produtoId: 'P004', quantidade: 4 }]);
 
-  for (let i = 0; i < 4; i++) {
-    await mais.click();
-  }
+  await carrinho.botaoAumentar(bone).click();
 
-  await expect(mais).toBeDisabled();
-  await expect(linha.getByText('Limite de 5 unidades por produto.')).toBeVisible();
-  await loja.esperarResumo({ subtotal: 'R$ 249,50' });
+  await expect(carrinho.quantidade(bone)).toHaveText('5');
+  await expect(carrinho.botaoAumentar(bone)).toBeDisabled();
+  await expect(carrinho.avisoLimite(bone)).toBeVisible();
+  await carrinho.esperarResumo({ subtotal: 'R$ 249,50' });
 });

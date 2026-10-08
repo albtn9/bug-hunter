@@ -40,6 +40,9 @@ Alguns testes **falham de propósito**: eles reproduzem os bugs encontrados e ca
 com o ID (BUG-001 a BUG-003, ver [`docs/bugs.md`](docs/bugs.md)). Quando o defeito for corrigido, o teste passa.
 O relatório HTML mostra a anotação em cada teste. Qualquer outra falha deve ser investigada.
 
+Execução de referência (07/10/2026): **API 50 passou / 7 falhou** e **UI 32 passou / 2 falhou**; as 9 falhas
+são os bugs BUG-001, BUG-002 e BUG-003 (detalhes em [`docs/evidencias.md`](docs/evidencias.md)).
+
 ## Decisões
 
 - O ambiente é compartilhado: poucos workers, **sem testes de carga, estresse ou segurança** (fora do escopo).
@@ -47,4 +50,13 @@ O relatório HTML mostra a anotação em cada teste. Qualquer outra falha deve s
   e em `docs/cenarios/04-calculo-total.feature`, independentes da API.
 - Os cenários têm tags: `@CAxx` (critério de aceite), `@ui`, `@api`, `@automatizado`,
   `@exploratorio` e `@ambiguidade`.
-- Seletores de UI ficam centralizados em `tests/support/loja.page.ts`.
+- **Seletores de UI** ficam em *page objects* (`tests/support/pages/`) e os specs só usam métodos de negócio
+  (`montarCarrinho`, `aplicarCupom`, `esperarResumo`). A loja não tem `data-testid`, então os seletores usam:
+  papéis e nomes acessíveis (`getByRole`, `getByLabel`, os `aria-label` da própria interface) e o atributo
+  `data-valor` do resumo do pedido. Se a interface mudar, só os page objects precisam ser ajustados.
+- **Carrinho semeado:** a loja guarda o carrinho em `sessionStorage` (`verzel-store:itens`, formato
+  `[{ "produtoId": "P005", "quantidade": 2 }]`). A fixture `carrinhoCom([...])` grava isso direto e abre `/carrinho`,
+  o que deixa os testes rápidos; a fixture `montarCarrinho` percorre a interface (usada na jornada de compra).
+- `docs/dom-referencia/` guarda o HTML de cada tela usado para escolher os seletores (vitrine, carrinho vazio,
+  carrinho com limite de 5, cupom aplicado, cupom inválido, checkout com erros e documentação).
+- Fixtures (`tests/support/fixtures.ts`) montam o carrinho e entregam os page objects; `anotacoes.ts` liga o teste ao bug.

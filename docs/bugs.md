@@ -56,6 +56,9 @@ Na API: `POST /api/carrinho/calcular` com `{ "itens": [{ "produtoId": "P005", "q
 - `evidencias/BUG-001-ui-frete-subtotal-200-sem-cupom.png`
 - `evidencias/BUG-001-ui-frete-subtotal-200-com-cupom.png`
 - `evidencias/BUG-001-api-calcular-subtotal-200.png`
+- `evidencias/BUG-001-playwright-relatorio-ca06.png`
+- `evidencias/BUG-001-playwright-ui-ca06.png`
+- `evidencias/BUG-001-playwright-ui-ca08.png`
 - Testes automatizados que falham: `tests/api/calculo.spec.ts` (casos #4 e #5) e `tests/api/frete-limite.spec.ts`
   (`P005 × 2` e `P008 × 4`)
 

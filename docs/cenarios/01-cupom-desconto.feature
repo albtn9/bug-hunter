@@ -16,7 +16,7 @@ Funcionalidade: Aplicação de cupom de desconto no carrinho
     E o desconto exibido é "R$ 10,00"
     E o frete exibido é "R$ 19,90"
     E o total exibido é "R$ 109,90"
-    E vejo a mensagem "Cupom aplicado: 10% de desconto nos produtos."
+    E vejo o cupom "BEMVINDO10" marcado como aplicado
 
   @CA02 @ui @api @automatizado
   Esquema do Cenário: Código do cupom ignora maiúsculas/minúsculas e espaços nas pontas
