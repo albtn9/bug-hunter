@@ -64,7 +64,7 @@ Data das execuções já registradas: 07/10/2026. Atualizações manuais desta r
 ## Nota de atualização
 
 - **BUG-004** foi atribuído ao cenário 48 após reproduzir `itens: [{}]` e receber `PRODUTO_NAO_ENCONTRADO` com `Produto undefined não encontrado`, em vez de `ITEM_INVALIDO`. Confirmar/adicionar o registro correspondente em [`bugs.md`](bugs.md) antes do envio.
-- O cenário 10 permanece sem alteração: reexecutar e reconciliar com BUG-001 se ainda houver divergência entre o status registrado e o resultado observado.
+- Os cenários foram atualizados conforme as execuções realizadas. O cenário #10 está marcado como `Falhou` e relacionado ao `BUG-001`, devido à cobrança indevida de frete quando o subtotal atinge R$ 200,00.
 
 ## Sessão exploratória
 
