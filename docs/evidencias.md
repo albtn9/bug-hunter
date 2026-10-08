@@ -38,5 +38,6 @@ Os testes de controle que passam delimitam o defeito: subtotal R$ 199,80 (cobra 
 | `BUG-002-api-calcular-quantidades-12-e-21.png` | BUG-002, CA10 | `/calcular` aceita 12 e 21 unidades |
 | `BUG-002-api-calcular-quantidade-100-tres-produtos.png` | BUG-002, CA10 | `/calcular` aceita 100 unidades de 3 produtos |
 | `BUG-003-api-pedidos-quantidade-6.png` | BUG-003, CA10 | `/pedidos` confirma 6 unidades (201, VZ-908998) |
+| `BUG-004-api-calcular-item-vazio.png` | BUG-004 | `{ "itens": [{}] }` retorna `PRODUTO_NAO_ENCONTRADO` com "Produto undefined não encontrado." |
 | `CA10-ui-limite-5-todos-produtos.png` | CA10 (passou) | UI bloqueia em 5 unidades nos 8 produtos |
 | `MANUAL-ui-pedido-confirmado-5-camisetas.png` | Pedido válido (passou) | Pedido VZ-298028 confirmado com dados válidos |

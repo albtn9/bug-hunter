@@ -12,7 +12,7 @@ Ambiente: Verzel Store v2.3.0 (card VZS-142), Chrome (UI), Postman e Playwright 
 | BUG-001 | Frete cobrado quando o subtotal é exatamente R$ 200,00 | Alta | Alta | CA06, CA08 | UI e API |
 | BUG-002 | `/api/carrinho/calcular` aceita mais de 5 unidades do mesmo produto | Média | Média | CA10 | API |
 | BUG-003 | `/api/pedidos` confirma pedido com mais de 5 unidades do mesmo produto | Alta | Alta | CA10 | API |
-| BUG-004 | Item vazio na API retorna erro de produto inexistente em vez de item inválido | Baixa | Média | Validação de entrada / contrato da API | API |
+| BUG-004 | Item sem `produtoId` retorna "Produto undefined não encontrado." | Baixa | Média | Validação de entrada / contrato da API | API |
 
 
 ---
@@ -143,38 +143,49 @@ Status **200** em todas as chamadas; a API calcula o carrinho normalmente acima 
 ---
 
 
-## BUG-004 | Item vazio na API retorna erro de produto inexistente em vez de item inválido
+## BUG-004 | Item sem `produtoId` retorna "Produto undefined não encontrado."
 
-* **Severidade / Prioridade:** Baixa / Média (mensagem de erro inadequada para uma estrutura de item incompleta; não foi demonstrado impacto além da validação da requisição)
+* **Severidade / Prioridade:** Baixa / Média (mensagem de erro enganosa e validação inconsistente; sem impacto financeiro)
 * **Onde:** API `POST /api/carrinho/calcular`
-* **Relacionado:** validação da estrutura dos itens enviados na requisição
+* **Relacionado:** validação dos itens (`ITEM_INVALIDO`, `QUANTIDADE_INVALIDA`)
 
 **Passos para reproduzir**
 
 1. Enviar `POST /api/carrinho/calcular` com `Content-Type: application/json` e o corpo:
 
 ```json
-{
-  "itens": [{}]
-}
+{ "itens": [{}] }
 ```
 
-2. Repetir a chamada para confirmar o comportamento.
+2. Repetir com `{ "itens": [{ "quantidade": 1 }] }`.
 
 **Resultado esperado**
 
-* Erro `ITEM_INVALIDO`. A tabela de erros da documentação define esse código como "Um item não é um objeto com produtoId e quantidade", e `{}` é um objeto sem esses dois campos.
+* Um erro de validação que informe que o `produtoId` é obrigatório ou inválido, como acontece com a quantidade ausente, que devolve `QUANTIDADE_INVALIDA` com uma mensagem clara. Também seria coerente `ITEM_INVALIDO`, definido na documentação como "Um item não é um objeto com produtoId e quantidade".
 
 **Resultado obtido**
 
-* Erro `PRODUTO_NAO_ENCONTRADO`, mensagem `"Produto undefined não encontrado."` e campo `itens[0].produtoId`.
+* Status 422 com `PRODUTO_NAO_ENCONTRADO`, mensagem `"Produto undefined não encontrado."` e campo `itens[0].produtoId`. A mensagem sugere uma busca por um produto que não existe e expõe o valor interno `undefined`.
+
+**Comparação com os outros itens inválidos**
+
+| Item enviado | Código | Mensagem |
+|---|---|---|
+| `{}` | `PRODUTO_NAO_ENCONTRADO` | Produto undefined não encontrado. |
+| `{ "quantidade": 1 }` | `PRODUTO_NAO_ENCONTRADO` | Produto undefined não encontrado. |
+| `{ "produtoId": "P001" }` | `QUANTIDADE_INVALIDA` | A quantidade deve ser um número inteiro maior ou igual a 1. |
+| `null` e `["P004"]` | `ITEM_INVALIDO` | Cada item deve ser um objeto com produtoId e quantidade. |
 
 **Evidências**
 
 * `evidencias/BUG-004-api-calcular-item-vazio.png`
 
-**Observações**
+**Observação**
 
-* Reproduzido em duas execuções.
-* Para `{"itens":[null]}` e `{"itens":[["P004"]]}` a API retorna `ITEM_INVALIDO`, com a mensagem de que cada item deve ser um objeto com `produtoId` e `quantidade`. Só o objeto vazio cai no erro de produto inexistente e expõe `undefined` na mensagem.
-* A documentação não cita o caso `{}` explicitamente; a expectativa decorre da definição de `ITEM_INVALIDO`.
+* Reproduzido em mais de uma execução.
+* A documentação não cita o caso `{}` explicitamente; a expectativa decorre da definição de `ITEM_INVALIDO` e do tratamento dado à quantidade ausente.
+
+---
+## Observação sobre o que passou
+
+Os critérios CA01, CA02, CA03, CA04, CA07 e CA09, os demais casos aprovados da matriz, a validação de quantidades inválidas e o limite de 5 unidades na interface passaram sem divergência. Foram registrados os BUG-001, BUG-002 e BUG-003, relacionados ao frete e ao limite de quantidade na API, além do BUG-004, referente à mensagem de erro para item sem `produtoId`.

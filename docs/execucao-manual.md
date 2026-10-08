@@ -5,10 +5,10 @@ Data das execuções já registradas: 07/10/2026. Atualizações manuais desta r
 
 | # | Arquivo | Cenário | CA | Tipo | Resultado | Bug | Evidência | Observações |
 |---|---|---|---|---|---|---|---|---|
-| 01 | 01-cupom-desconto.feature | Cupom BEMVINDO10 aplica 10% de desconto sobre o subtotal | CA01 | ui | Passou |  | `tests/ui/cupom-e-frete.spec.ts` | 2 Camisetas + 3 Calças: subtotal R$ 539,50, desconto R$ 53,95 (10%), frete Grátis, total R$ 485,55. A UI exibe "Cupom BEMVINDO10 aplicado." (a frase "Cupom aplicado: 10%..." é da API). |
+| 01 | 01-cupom-desconto.feature | Cupom BEMVINDO10 aplica 10% de desconto sobre o subtotal | CA01 | ui | Passou |  | `docs/dom-referencia/carrinho-cupom-aplicado.html` | 2 Camisetas + 3 Calças: subtotal R$ 539,50, desconto R$ 53,95 (10%), frete Grátis, total R$ 485,55. A UI exibe "Cupom BEMVINDO10 aplicado." (a frase "Cupom aplicado: 10%..." é da API). |
 | 02 | 01-cupom-desconto.feature | Código do cupom ignora maiúsculas/minúsculas e espaços nas pontas | CA02 | ui,api | Passou |  |  | Automatizado: UI (5 variações) e API (6 variações) aceitam caixa e espaços nas pontas. |
 | 03 | 01-cupom-desconto.feature | Códigos com espaço no meio ou vazios não aplicam desconto | CA02 | ui,api | Passou |  |  | UI: cupom vazio exibe “Informe um cupom.”; `BEM VINDO10` é inválido. API: cupom composto por espaços não aplica desconto (`aplicado: false`, desconto R$ 0,00). |
-| 04 | 01-cupom-desconto.feature | Cupom inexistente exibe "Cupom inválido." e não desconta | CA03 | ui,api | Passou |  | `tests/ui/cupom-e-frete.spec.ts` | UI exibe "Cupom inválido." (role alert, campo com aria-invalid), desconto R$ 0,00 e total sem alteração. API também passou (automatizado). |
+| 04 | 01-cupom-desconto.feature | Cupom inexistente exibe "Cupom inválido." e não desconta | CA03 | ui,api | Passou |  | `docs/dom-referencia/carrinho-cupom-invalido.html` | UI exibe "Cupom inválido." (role alert, campo com aria-invalid), desconto R$ 0,00 e total sem alteração. API também passou (automatizado). |
 | 05 | 01-cupom-desconto.feature | Cupom expirado exibe "Cupom expirado." e não desconta | CA04 | ui,api | Passou |  |  | Automatizado: UI exibe "Cupom expirado." (role alert) sem desconto; API também passou. |
 | 06 | 01-cupom-desconto.feature | Cupom expirado também respeita maiúsculas/minúsculas e espaços | CA04 | ui,api | Passou |  |  | Confirmado pelo usuário na UI e na API: `verao2026`, `VERAO2026`, `  VERAO2026` e `VERAO2026  ` retornam “Cupom expirado.”. |
 | 07 | 01-cupom-desconto.feature | Não é possível acumular dois cupons | CA05 | ui | Passou |  | `docs/dom-referencia/carrinho-cupom-aplicado.html` | A UI impede acumular: com cupom aplicado o campo de cupom some e só resta "Remover cupom". Confirmar visualmente na tela. |
@@ -22,7 +22,7 @@ Data das execuções já registradas: 07/10/2026. Atualizações manuais desta r
 | 15 | 02-frete-gratis.feature | Frete grátis considera o subtotal ANTES do desconto | CA08 | ui,api | Falhou | BUG-001 | `BUG-001-ui-frete-subtotal-200-com-cupom.png` | Total R$ 199,90; esperado R$ 180,00. Causa raiz no limite de R$ 200,00. |
 | 16 | 02-frete-gratis.feature | Valor faltante não considera o desconto do cupom | CA08 | api | Passou |  |  | `POST /api/carrinho/calcular`, P005 × 1 com `BEMVINDO10`: subtotal R$ 100,00, desconto R$ 10,00, frete R$ 19,90 e `valorFaltanteFreteGratis: 100`. O valor faltante usa o subtotal antes do desconto. |
 | 17 | 02-frete-gratis.feature | Desconto do cupom não incide sobre o frete | CA09 | ui,api | Passou |  | `BUG-001-ui-frete-subtotal-200-com-cupom.png` | Verificado com 2 mochilas: desconto de R$ 20,00 só sobre os produtos. |
-| 18 | 02-frete-gratis.feature | Subtotal logo abaixo de R$ 200,00 mantém o frete mesmo com cupom | CA08 | api | A executar |  |  |  |
+| 18 | 02-frete-gratis.feature | Subtotal logo abaixo de R$ 200,00 mantém o frete mesmo com cupom | CA08 | api | Passou |  |  | API: subtotal 199,80, desconto 19,98, frete 19,90, freteGratis false, faltante 0,20 e total 199,72. O frete considera o subtotal antes do desconto. |
 | 19 | 03-limite-quantidade.feature | Interface permite até 5 unidades do mesmo produto | CA10 | ui | Passou |  | `CA10-ui-limite-5-todos-produtos.png` | Os 8 produtos chegaram a 5 unidades. |
 | 20 | 03-limite-quantidade.feature | Interface impede a 6ª unidade do mesmo produto | CA10 | ui | Passou |  | `CA10-ui-limite-5-todos-produtos.png` | Botão "+" desabilitado e "Limite de 5 unidades por produto.". |
 | 21 | 03-limite-quantidade.feature | Interface impede aumentar a quantidade para além de 5 no carrinho | CA10 | ui | Passou |  | `CA10-ui-limite-5-todos-produtos.png` | Sem campo numérico; só botões "-" e "+". |
@@ -36,28 +36,28 @@ Data das execuções já registradas: 07/10/2026. Atualizações manuais desta r
 | 29 | 05-dados-do-cliente.feature | Pedido confirmado com dados válidos | - | ui,api | Passou |  | `MANUAL-ui-pedido-confirmado-5-camisetas.png` | Pedido VZ-298028 (UI). Na API, 201 com número no formato VZ-000000. |
 | 30 | 05-dados-do-cliente.feature | Pedido com cupom válido confirma com desconto | - | api | Passou |  |  | Automatizado: resumo do pedido igual ao cálculo. |
 | 31 | 05-dados-do-cliente.feature | Pedido com cupom inválido ou expirado é recusado | - | api | Passou |  |  | Automatizado: 422 CUPOM_INVALIDO e CUPOM_EXPIRADO. |
-| 32 | 05-dados-do-cliente.feature | Validação do nome (precisa de nome e sobrenome) | - | ui,api | Parcial |  |  | UI e API passaram para "Maria", vazio e "Maria Silva" (automatizado). Falta "Maria de Souza". |
-| 33 | 05-dados-do-cliente.feature | Nomes nos limites da regra | - | ui,api | A executar |  |  |  |
-| 34 | 05-dados-do-cliente.feature | Validação do e-mail | - | ui,api | Parcial |  |  | UI recusa "maria", "maria@" e "@exemplo.com"; API recusa "maria" e "maria@" (automatizado). Faltam "maria exemplo.com", "maria@@exemplo.com". |
-| 35 | 05-dados-do-cliente.feature | E-mails nos limites da regra | - | ui,api | A executar |  |  |  |
-| 36 | 05-dados-do-cliente.feature | Validação do CEP (8 dígitos, com ou sem hífen) | - | ui,api | Parcial |  |  | UI e API: "01310-100" e "01310100" aceitos; "0131010", "013101000", "01310-1000" e "abcdefgh" recusados (automatizado). Faltam "0131-0100", "01310-10a" e vazio. |
-| 37 | 05-dados-do-cliente.feature | Dados do cliente inválidos retornam DADOS_INVALIDOS | - | api | A executar |  |  |  |
+| 32 | 05-dados-do-cliente.feature | Validação do nome (precisa de nome e sobrenome) | - | ui,api | Passou |  |  | UI e API: "Maria", vazio e "Maria Silva" (automatizado) e "Maria de Souza" (API /pedidos, 201) conforme o esperado. |
+| 33 | 05-dados-do-cliente.feature | Nomes nos limites da regra | - | ui,api | Passou |  |  | Registrado (API /pedidos): " Maria " recusado (espaços ignorados, vira só "Maria"); "Maria  Silva" aceito e devolvido com 2 espaços; "Maria S" recusado ("Informe nome e sobrenome."); "123 456" aceito. Ver ambiguidade #15. |
+| 34 | 05-dados-do-cliente.feature | Validação do e-mail | - | ui,api | Passou |  |  | UI recusa "maria", "maria@" e "@exemplo.com"; API recusa "maria", "maria@", "maria exemplo.com" e "maria@@exemplo.com" com DADOS_INVALIDOS (cliente.email: "Informe um e-mail válido."). E-mail válido aceito (201). |
+| 35 | 05-dados-do-cliente.feature | E-mails nos limites da regra | - | ui,api | Passou |  |  | API (/pedidos): "maria@exemplo" recusado (422); "maria@exemplo.c" aceito (201, extensão de 1 letra); " maria@exemplo.com" (espaço no início) não gerou erro de e-mail (as chamadas de CEP listaram só cliente.cep, e a API lista todos os campos inválidos de uma vez). Ver ambiguidade #16. |
+| 36 | 05-dados-do-cliente.feature | Validação do CEP (8 dígitos, com ou sem hífen) | - | ui,api | Passou |  |  | UI e API: "01310-100" e "01310100" aceitos (CEP devolvido sem hífen); recusados com "Informe um CEP com 8 dígitos.": "0131010", "013101000", "01310-1000", "0131-0100", "01310-10a" e "abcdefgh"; vazio e " " retornam "Informe o CEP.". |
+| 37 | 05-dados-do-cliente.feature | Dados do cliente inválidos retornam DADOS_INVALIDOS | - | api | Passou |  |  | API: 422 DADOS_INVALIDOS com "campos" (lista de {campo, mensagem}) para cliente.nome, cliente.email e cliente.cep, como descreve a documentação. |
 | 38 | 05-dados-do-cliente.feature | CEP é devolvido normalizado na resposta do pedido | - | api | Passou |  | `BUG-003-api-pedidos-quantidade-6.png` | CEP devolvido sem hífen (01310100). Tratado como normalização intencional (ambiguidade #13). |
-| 39 | 05-dados-do-cliente.feature | Não existe etapa de pagamento online | - | ui | Passou |  | `tests/ui/checkout.spec.ts` | O checkout pede só nome, e-mail e CEP e informa "O pagamento é feito na entrega."; não há etapa de pagamento online. |
+| 39 | 05-dados-do-cliente.feature | Não existe etapa de pagamento online | - | ui | Passou |  | `docs/dom-referencia/checkout-com-erros.html` | O checkout pede só nome, e-mail e CEP e informa "O pagamento é feito na entrega."; não há etapa de pagamento online. |
 | 40 | 06-api-contrato-e-erros.feature | Listar produtos | - |  | Passou |  |  | Automatizado. |
-| 41 | 06-api-contrato-e-erros.feature | Consultar produto por id | - |  | Parcial |  |  | Automatizado só com P001. Faltam P008, P999 e p001. |
+| 41 | 06-api-contrato-e-erros.feature | Consultar produto por id | - |  | Passou |  |  | GET P001 e P008 retornam 200 com id, nome, descricao, categoria e preco; P999 e p001 retornam PRODUTO_NAO_ENCONTRADO ("Produto p001 não encontrado."): os ids diferenciam maiúsculas e minúsculas. |
 | 42 | 06-api-contrato-e-erros.feature | Produto inexistente retorna PRODUTO_NAO_ENCONTRADO no formato padrão de erro | - |  | Passou |  |  | Automatizado. |
 | 43 | 06-api-contrato-e-erros.feature | Rota inexistente | - |  | Passou |  |  | Automatizado. |
-| 44 | 06-api-contrato-e-erros.feature | Método HTTP não permitido | - |  | Parcial |  |  | Automatizado em 3 de 4 rotas. Falta DELETE /api/produtos/P001. |
+| 44 | 06-api-contrato-e-erros.feature | Método HTTP não permitido | - |  | Passou |  |  | DELETE /api/produtos/P001 retorna METODO_NAO_PERMITIDO ("O método DELETE não é permitido nesta rota."). As demais rotas estão cobertas pela automação. |
 | 45 | 06-api-contrato-e-erros.feature | Corpo com JSON malformado | - |  | Passou |  |  | Automatizado. |
 | 46 | 06-api-contrato-e-erros.feature | Corpo que não é um objeto JSON | - | api | Passou |  |  | `[]`, `"teste"`, `123` e `null` retornam `JSON_INVALIDO`. `{}` é um objeto JSON válido e retorna `ITENS_OBRIGATORIOS`, portanto é um caso separado. |
 | 47 | 06-api-contrato-e-erros.feature | Lista de itens ausente ou vazia | - |  | Passou |  |  | Automatizado. |
-| 48 | 06-api-contrato-e-erros.feature | Item que não é um objeto válido | - | api | Falhou | BUG-004 |  | `["P001"]` e `null` retornam `ITEM_INVALIDO`. Porém, `itens: [{}]` reproduz `PRODUTO_NAO_ENCONTRADO`, mensagem “Produto undefined não encontrado.”, campo `itens[0].produtoId`, em vez de `ITEM_INVALIDO`. |
+| 48 | 06-api-contrato-e-erros.feature | Item que não é um objeto válido | - | api | Falhou | BUG-004 |  | `[null]`, `["P001"]` e `[["P004"]]` retornam ITEM_INVALIDO; `{}` e `{"quantidade":1}` retornam PRODUTO_NAO_ENCONTRADO ("Produto undefined não encontrado."); `{"produtoId":"P001"}` retorna QUANTIDADE_INVALIDA (itens[0].quantidade). |
 | 49 | 06-api-contrato-e-erros.feature | Item com produto inexistente | - | api | Passou |  |  | P009 retorna `PRODUTO_NAO_ENCONTRADO`, com `campo: "itens[1].produtoId"` quando o item inválido é o segundo da lista. |
-| 50 | 06-api-contrato-e-erros.feature | Campo do erro aponta o item com problema | - |  | A executar |  |  |  |
+| 50 | 06-api-contrato-e-erros.feature | Campo do erro aponta o item com problema | - |  | Passou |  |  | P001×1 + P002×0: 422 QUANTIDADE_INVALIDA com campo "itens[1].quantidade", apontando o item correto. |
 | 51 | 06-api-contrato-e-erros.feature | Ordem de validação quando há mais de um problema | - | api | Passou |  |  | Resultado observado: quantidade inválida é reportada antes de produto inexistente; com quantidade válida, o produto inexistente é reportado. Cupom inválido é informado em `cupom.mensagem` sem impedir o cálculo. A documentação não define precedência; registrar como observação, não como bug. |
 | 52 | 06-api-contrato-e-erros.feature | Cupom inválido ou expirado no cálculo não gera erro | - |  | Passou |  |  | Automatizado. |
-| 53 | 06-api-contrato-e-erros.feature | Valores de cupom fora do padrão | - |  | A executar |  |  |  |
+| 53 | 06-api-contrato-e-erros.feature | Valores de cupom fora do padrão | - |  | Passou |  |  | Registrado: "" e null → 200 sem cupom (cupom: null); 123 e true → 200, convertidos para texto ("123" e "true") e tratados como "Cupom inválido."; " " → 200 "Cupom inválido." com codigo "" (diferente de "", que vira cupom null). Ver ambiguidade #14. |
 | 54 | 06-api-contrato-e-erros.feature | Código do cupom devolvido na resposta | - | api | Passou |  |  | Cupom válido retorna `codigo: "BEMVINDO10"` e `aplicado: true`; cupom inválido com espaços também foi observado com `codigo: ""` e `aplicado: false`. |
 | 55 | 06-api-contrato-e-erros.feature | Resumo do pedido confirmado é igual ao cálculo do carrinho | - |  | Passou |  |  | Automatizado. |
 
@@ -77,14 +77,15 @@ Data das execuções já registradas: 07/10/2026. Atualizações manuais desta r
 - Tratamento de espaços e diferenças entre letras maiúsculas e minúsculas;
 - Cálculo do frete no limite de R$ 200,00;
 - Cálculo do desconto sobre o subtotal;
-- Validação de quantidades e estruturas inválidas nas requisições da API.
+- Validação de quantidades e estruturas inválidas nas requisições da API;
+- Validação dos dados do cliente (nome, e-mail e CEP) e cupons fora do padrão na API.
 
 ### Achados
 
 - **BUG-001:** ao atingir exatamente R$ 200,00 de subtotal, o sistema cobra R$ 19,90 de frete, mesmo informando que não falta valor para obter frete grátis. Reproduzido na UI e na API, inclusive com o cupom `BEMVINDO10`.
 - **BUG-002:** a API `POST /api/carrinho/calcular` aceita quantidades superiores a 5 unidades do mesmo produto.
 - **BUG-003:** a API `POST /api/pedidos` confirma pedidos com mais de 5 unidades do mesmo produto.
-- **BUG-004:** o envio de um item vazio (`{"itens":[{}]}`) retorna `PRODUTO_NAO_ENCONTRADO` e a mensagem `"Produto undefined não encontrado."`, enquanto outras estruturas inválidas retornam `ITEM_INVALIDO`. A expectativa para esse caso precisa ser confirmada com o contrato da API.
+- **BUG-004:** o envio de item sem `produtoId` (`{"itens":[{}]}`) retorna `PRODUTO_NAO_ENCONTRADO` com a mensagem `"Produto undefined não encontrado."`, enquanto item sem quantidade retorna `QUANTIDADE_INVALIDA` com mensagem clara e itens que não são objeto retornam `ITEM_INVALIDO`.
 
 ### Comportamentos verificados
 
