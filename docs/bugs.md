@@ -2,7 +2,7 @@
 
 Antes de reportar, conferi a seção "Sobre este ambiente" da documentação (carrinho só na aba, pedidos não armazenados, sem e-mail/cobrança, dados fixos, API sem estado). Nenhum dos bugs abaixo se enquadra nesses comportamentos esperados.
 
-Ambiente: Verzel Store v2.3.0 (card VZS-142), Chrome (UI), Postman e Playwright (API), execução em 07/10/2026.
+Ambiente: Verzel Store v2.3.0 (card VZS-142), Chrome (UI), Postman e Playwright (API), execução em 07 e 08/10/2026.
 
 ## Resumo
 
@@ -12,6 +12,7 @@ Ambiente: Verzel Store v2.3.0 (card VZS-142), Chrome (UI), Postman e Playwright 
 | BUG-002 | `/api/carrinho/calcular` aceita mais de 5 unidades do mesmo produto | Média | Média | CA10 | API |
 | BUG-003 | `/api/pedidos` confirma pedido com mais de 5 unidades do mesmo produto | Alta | Alta | CA10 | API |
 | BUG-004 | Item sem `produtoId` retorna "Produto undefined não encontrado." | Baixa | Média | Validação de entrada / contrato da API | API |
+| BUG-005 | E-mail com emoji no domínio é aceito na finalização da compra | Baixa | Média | Regra de e-mail válido (pré-existente) | UI |
 
 ---
 
@@ -25,10 +26,10 @@ Ambiente: Verzel Store v2.3.0 (card VZS-142), Chrome (UI), Postman e Playwright 
 **Passos para reproduzir**
 
 1. Na lista de produtos, adicionar 2 unidades de "Mochila Urbana 20L" (R\$ 100,00 cada).
-2. Abrir o carrinho de compras.
-3. (Opcional) Aplicar o cupom de desconto `BEMVINDO10`.
+2. Abrir o carrinho.
+3. (Opcional) Aplicar o cupom `BEMVINDO10`.
 
-*Via API:* Enviar requisição `POST /api/carrinho/calcular` com o payload `{ "itens": [{ "produtoId": "P005", "quantidade": 2 }] }`.
+*Via API:* `POST /api/carrinho/calcular` com o corpo `{ "itens": [{ "produtoId": "P005", "quantidade": 2 }] }`.
 
 **Resultado esperado**
 
@@ -39,14 +40,14 @@ Ambiente: Verzel Store v2.3.0 (card VZS-142), Chrome (UI), Postman e Playwright 
 
 - Sem cupom: subtotal R\$ 200,00, frete **R\$ 19,90**, total **R\$ 219,90**.
 - Com `BEMVINDO10`: desconto R\$ 20,00, frete **R\$ 19,90**, total **R\$ 199,90**.
-- A interface exibe textualmente "Faltam R\$ 0,00 para o frete grátis", gerando contradição visual com a cobrança da taxa de R\$ 19,90.
-- Retorno da API: `frete: 19.9`, `freteGratis: false` e `valorFaltanteFreteGratis: 0` encapsulados na mesma resposta.
+- A interface exibe "Faltam R\$ 0,00 para o frete grátis", contradizendo a cobrança do frete.
+- Na API, a mesma resposta traz `frete: 19.9`, `freteGratis: false` e `valorFaltanteFreteGratis: 0`.
 
-**Análise & Causa Raiz**
+**Análise**
 
-- O cálculo de desconto opera corretamente (R\$ 20,00); a falha reside estritamente na validação lógica do frete.
-- Há uma contradição de lógica no back-end: a propriedade `valorFaltanteFreteGratis: 0` adota a regra correta (`>= 200`), enquanto a propriedade `freteGratis: false` utiliza incorretamente um operador estrito maior que (`> 200`).
-- Subtotais acima do limite (ex: R\$ 219,80) e abaixo (ex: R\$ 199,80) funcionam adequadamente, isolando o defeito exatamente no valor limiar de R\$ 200,00. Reproduzido também sob a composição `P008 × 4`.
+- O desconto está correto (R\$ 20,00); o erro está só na regra do frete.
+- A resposta da API se contradiz: `valorFaltanteFreteGratis: 0` indica que o limite foi atingido, mas `freteGratis: false` e `frete: 19.9` indicam o contrário. Hipótese: o cálculo do frete usa `> 200`, enquanto o do valor faltante usa `>= 200`.
+- Subtotais acima (R\$ 219,80) e abaixo (R\$ 199,80) do limite se comportam corretamente, o que isola o defeito no valor exato de R\$ 200,00. Reproduzido também com `P008 × 4`.
 
 **Evidências**
 
@@ -56,39 +57,42 @@ Ambiente: Verzel Store v2.3.0 (card VZS-142), Chrome (UI), Postman e Playwright 
 - `evidencias/BUG-001-playwright-relatorio-ca06.png`
 - `evidencias/BUG-001-playwright-ui-ca06.png`
 - `evidencias/BUG-001-playwright-ui-ca08.png`
-- Testes automatizados que falham: `tests/api/calculo.spec.ts` (casos #4 e #5) e `tests/api/frete-limite.spec.ts` (`P005 × 2` e `P008 × 4`)
+- Testes automatizados que falham: `tests/api/calculo.spec.ts` (casos #4 e #5), `tests/api/frete-limite.spec.ts` (`P005 × 2` e `P008 × 4`) e `tests/ui/cupom-e-frete.spec.ts` (CA06 e CA08)
 
 ---
 
 ## BUG-002 | `/api/carrinho/calcular` aceita mais de 5 unidades do mesmo produto
 
-- **Severidade / Prioridade:** Média / Média (a interface web mitiga o cenário bloqueando a ação do usuário; a falha fica exposta em chamadas diretas de integração)
+- **Severidade / Prioridade:** Média / Média (a interface bloqueia a 6ª unidade; o defeito aparece em chamadas diretas à API)
 - **Critério de aceite:** CA10 ("a regra vale para a interface e para a API")
 - **Onde:** API `POST /api/carrinho/calcular`
 
 **Passos para reproduzir**
 
-1. Enviar um `POST /api/carrinho/calcular` com o cabeçalho `Content-Type: application/json` e o corpo contendo quantidade abusiva:
+1. Enviar `POST /api/carrinho/calcular` com `Content-Type: application/json` e o corpo:
+
 ```json
 { "itens": [{ "produtoId": "P004", "quantidade": 6 }] }
 ```
-2. Repetir variando cenários de carga: `P002 × 12` + `P004 × 21` (com cupom `BEMVINDO10`) ou cargas massivas (`P002`, `P004` e `P001` com `× 100` cada).
+
+2. Repetir com quantidades maiores: `P002 × 12` + `P004 × 21` (com `BEMVINDO10`) e `P002`, `P004` e `P001` com `× 100` cada.
 
 **Resultado esperado**
 
-- Resposta com status HTTP **422 Unprocessable Entity** contendo as propriedades estruturadas `erro.codigo = "QUANTIDADE_MAXIMA_EXCEDIDA"` e `erro.campo = "itens.quantidade"`.
+- Status **422** com `erro.codigo = "QUANTIDADE_MAXIMA_EXCEDIDA"` e `erro.campo = "itens[0].quantidade"`.
 
 **Resultado obtido**
 
-Status **200 OK** retornado em todas as volumetrias abusivas; a camada de negócio da API calcula as somas ignorando as travas de estoque:
+Status **200 OK** em todas as chamadas; a API calcula o carrinho normalmente com quantidades acima do limite:
+
 - `P004 × 6`: subtotal R\$ 299,40, frete grátis, total R\$ 299,40.
 - `P002 × 12` + `P004 × 21` com `BEMVINDO10`: subtotal R\$ 2.726,70, desconto R\$ 272,67, total R\$ 2.454,03.
-- Carga nominal massiva (100 unidades de cada): processamento aceito totalizando subtotal de R\$ 24.970,00.
+- `P002`, `P004` e `P001` × 100 cada, com `BEMVINDO10`: subtotal R\$ 24.970,00, desconto R\$ 2.497,00, total R\$ 22.473,00.
 
 **Observações**
 
-- Inputs limiares permitidos (`quantidade: 5`) processam normalmente em código 200. Inputs negativos, nulos ou decimais disparam corretamente o erro `QUANTIDADE_INVALIDA` (HTTP 422).
-- Na camada do Front-end (UI), o componente seletor manipula a regra perfeitamente, desabilitando o gatilho "+" ao atingir 5 unidades. O defeito caracteriza **falha de validação e sanitização na camada de Back-end**.
+- Com `quantidade: 5` a resposta é 200 (correto). Valores inválidos (0, -1, 1.5, "2" e null) retornam 422 `QUANTIDADE_INVALIDA` (correto).
+- Na interface, o botão "+" fica desabilitado em 5 unidades e aparece "Limite de 5 unidades por produto." O defeito está na validação da API.
 
 **Evidências**
 
@@ -101,14 +105,15 @@ Status **200 OK** retornado em todas as volumetrias abusivas; a camada de negóc
 
 ## BUG-003 | `/api/pedidos` confirma pedido com mais de 5 unidades do mesmo produto
 
-- **Severidade / Prioridade:** Alta / Alta (permite a quebra de regras de estoque e consolidação de transações irregulares no banco)
+- **Severidade / Prioridade:** Alta / Alta (o pedido é confirmado fora da regra de negócio)
 - **Critério de aceite:** CA10
 - **Onde:** API `POST /api/pedidos`
-- **Relacionado:** BUG-002 (mesma regra de teto logístico, endpoints distintos)
+- **Relacionado:** BUG-002 (mesma regra, rota diferente)
 
 **Passos para reproduzir**
 
-1. Enviar requisição `POST /api/pedidos` injetando dados válidos de cliente, mas volumetria acima do limite de itens:
+1. Enviar `POST /api/pedidos` com dados válidos de cliente e mais de 5 unidades de um produto:
+
 ```json
 {
   "cliente": { "nome": "Maria Silva", "email": "maria@exemplo.com", "cep": "01310-100" },
@@ -118,11 +123,11 @@ Status **200 OK** retornado em todas as volumetrias abusivas; a camada de negóc
 
 **Resultado esperado**
 
-- Retorno HTTP **422 Unprocessable Entity** com `erro.codigo = "QUANTIDADE_MAXIMA_EXCEDIDA"`, bloqueando a geração da ordem de compra.
+- Status **422** com `erro.codigo = "QUANTIDADE_MAXIMA_EXCEDIDA"`; nenhum pedido confirmado.
 
 **Resultado obtido**
 
-- Status **201 Created**, persistindo e gerando o pedido de identificação `VZ-908998` (`criadoEm: 2026-10-07T22:43:49.903Z`), faturando 6 unidades sob subtotal de R\$ 299,40 com frete gratuito.
+- Status **201 Created**, com o número de pedido `VZ-908998` (`criadoEm: 2026-10-07T22:43:49.903Z`), `quantidade: 6`, subtotal R\$ 299,40, frete grátis e total R\$ 299,40.
 
 **Evidências**
 
@@ -133,41 +138,75 @@ Status **200 OK** retornado em todas as volumetrias abusivas; a camada de negóc
 
 ## BUG-004 | Item sem `produtoId` retorna "Produto undefined não encontrado."
 
-- **Severidade / Prioridade:** Baixa / Média (vazamento de termos internos de desenvolvimento na mensagem de erro; sem impactos de cálculo ou financeiros)
+- **Severidade / Prioridade:** Baixa / Média (mensagem de erro enganosa e validação inconsistente; sem impacto financeiro)
 - **Onde:** API `POST /api/carrinho/calcular`
-- **Relacionado:** validação estrutural do nó de itens (`ITEM_INVALIDO`, `QUANTIDADE_INVALIDA`)
+- **Relacionado:** validação dos itens (`ITEM_INVALIDO`, `QUANTIDADE_INVALIDA`)
 
 **Passos para reproduzir**
 
-1. Enviar `POST /api/carrinho/calcular` com um objeto de item totalmente desprovido de propriedades: `{ "itens": [{}] }`
-2. Repetir a chamada informando apenas o parâmetro numérico: `{ "itens": [{ "quantidade": 1 }] }`
+1. Enviar `POST /api/carrinho/calcular` com o corpo `{ "itens": [{}] }`.
+2. Repetir com `{ "itens": [{ "quantidade": 1 }] }`.
 
 **Resultado esperado**
 
-- Resposta de rejeição contratual coerente. Espera-se o retorno do código `ITEM_INVALIDO` (definido no escopo como "Um item não é um objeto com produtoId e quantidade") ou um alerta explícito indicando a obrigatoriedade do campo de identificação do item.
+- Um erro de validação que informe que o `produtoId` é obrigatório ou inválido, como acontece com a quantidade ausente. Também seria coerente `ITEM_INVALIDO`, definido na documentação como "Um item não é um objeto com produtoId e quantidade".
 
 **Resultado obtido**
 
-- Status HTTP **422 Unprocessable Entity** retornando o código de erro genérico `PRODUTO_NAO_ENCONTRADO`, acompanhado da mensagem string `"Produto undefined não encontrado."` apontando para o ponteiro `itens.produtoId`. 
+- Status **422** com `PRODUTO_NAO_ENCONTRADO`, mensagem `"Produto undefined não encontrado."` e campo `itens[0].produtoId`. A mensagem sugere a busca de um produto inexistente e expõe o valor `undefined`.
 
-**Análise de Comparação de Inputs Incorretos**
+**Comparação com os outros itens inválidos**
 
-A tabela expõe a falta de padronização no tratamento do payload quando a chave identificadora é suprimida:
-
-| Item enviado | Código Retornado | Mensagem de Erro Obtida |
+| Item enviado | Código retornado | Mensagem |
 |---|---|---|
 | `{}` | `PRODUTO_NAO_ENCONTRADO` | Produto undefined não encontrado. |
 | `{ "quantidade": 1 }` | `PRODUTO_NAO_ENCONTRADO` | Produto undefined não encontrado. |
 | `{ "produtoId": "P001" }` | `QUANTIDADE_INVALIDA` | A quantidade deve ser um número inteiro maior ou igual a 1. |
 | `null` ou `["P004"]` | `ITEM_INVALIDO` | Cada item deve ser um objeto com produtoId e quantidade. |
 
-*Causa raiz:* O back-end tenta mapear a propriedade de busca de estoque diretamente através da leitura crua de chaves (`item.produtoId`) sem antes validar a existência e presença do atributo no objeto recebido, vazando o valor primitivo `undefined` do JavaScript na resposta final do cliente.
+**Observação**
+
+- A documentação não cita o caso `{}` explicitamente; a expectativa decorre da definição de `ITEM_INVALIDO` e do tratamento dado à quantidade ausente. Hipótese: a API busca o produto pelo `produtoId` antes de validar que o campo existe.
 
 **Evidências**
 
 - `evidencias/BUG-004-api-calcular-item-vazio.png`
 
 ---
-## Observação sobre critérios em conformidade
 
-Os critérios de aceite **CA01, CA02, CA03, CA04, CA07 e CA09**, os demais comportamentos calculatórios da matriz cruzada de descontos, o tratamento de payloads com quantidades negativas/nulas e o bloqueio de incremento visual no Front-end passaram com total sucesso e aderência aos requisitos especificados.
+## BUG-005 | E-mail com emoji no domínio é aceito na finalização da compra
+
+- **Severidade / Prioridade:** Baixa / Média (dado inválido aceito; sem impacto financeiro)
+- **Regra:** "O e-mail precisa ter um formato válido" (regras que já existiam antes da entrega, na documentação)
+- **Onde:** UI (checkout)
+
+**Passos para reproduzir**
+
+1. Adicionar um produto ao carrinho e clicar em "Finalizar compra".
+2. Preencher nome "Maria Silva", CEP "01310-100" e e-mail `email@email.😀`.
+3. Clicar em "Confirmar pedido".
+
+**Resultado esperado**
+
+- Erro de e-mail inválido ("Informe um e-mail válido.") e pedido não confirmado.
+
+**Resultado obtido**
+
+- Pedido confirmado, com número de pedido gerado.
+
+**Observações**
+
+- Na API (`POST /api/pedidos`), `maria@exemplo.c` (extensão de 1 letra) também é aceito, enquanto `maria@exemplo` é recusado: a validação exige o ponto, mas não valida os caracteres da extensão do domínio.
+
+**Evidências**
+
+- `evidencias/BUG-005-ui-email-emoji.png`
+
+---
+
+## Observação sobre o que passou
+
+- **Passaram:** CA01, CA02, CA03, CA04, CA05, CA07, CA09 e CA11, e 8 dos 10 casos da matriz de cálculo.
+- **Falharam:** CA06 e CA08 (BUG-001).
+- **CA10:** passou na interface e falhou na API (BUG-002 e BUG-003).
+- A validação de quantidades inválidas (0, -1, 1.5, "2" e null) também passou.
