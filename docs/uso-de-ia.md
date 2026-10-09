@@ -1,7 +1,7 @@
 # Uso de IA
 
 Ferramenta e abordagem
-Usei o **Claude (Anthropic),, por meio do chat**, como ferramenta de apoio em diferentes etapas do teste técnico: VZS-142 — cupom de desconto e frete grátis.
+Usei o **Claude (Anthropic), por meio do chat**, como ferramenta de apoio em diferentes etapas do teste técnico: VZS-142 — cupom de desconto e frete grátis.
 
 A IA não acessou diretamente a loja nem a API. As análises foram realizadas a partir da documentação, do HTML das telas, das respostas obtidas no Postman, das capturas de tela e das saídas dos testes que compartilhei durante o desenvolvimento. Toda a execução contra a Verzel Store foi realizada por mim.
 
