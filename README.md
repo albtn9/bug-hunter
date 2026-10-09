@@ -46,3 +46,4 @@ As falhas correspondem aos bugs identificados e detalhados em [`docs/bugs.md`](d
 - Os seletores de UI ficam em *page objects* em [`tests/support/pages/`](tests/support/pages), e os testes usam apenas métodos de negócio.
 - Quando a interface muda, somente os page objects precisam ser ajustados.
 - A automação usa fixtures para montar o carrinho e facilitar a execução dos testes.
+- A utilização de ferramentas de inteligência artificial como apoio ao desenvolvimento deste projeto está documentada em [`docs/uso-de-ia.md`](docs/uso-de-ia.md).
