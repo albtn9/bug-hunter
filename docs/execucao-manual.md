@@ -77,7 +77,7 @@ Arquivo: `05-dados-do-cliente.feature`
 | 35 | E-mails nos limites da regra | — | UI + API | ✔️ Passou | Postman | `maria@exemplo` recusado (422); `maria@exemplo.c` aceito (201, extensão de 1 letra); `" maria@exemplo.com"` (espaço no início) sem erro de e-mail. Ver ambiguidade #16 e BUG-005. |
 | 36 | Validação do CEP (8 dígitos, com ou sem hífen) | — | UI + API | ✔️ Passou | Automação + Postman | `01310-100` e `01310100` aceitos (CEP devolvido sem hífen); recusados com "Informe um CEP com 8 dígitos.": `0131010`, `013101000`, `01310-1000`, `0131-0100`, `01310-10a` e `abcdefgh`; vazio e `" "` retornam "Informe o CEP.". |
 | 37 | Dados do cliente inválidos retornam DADOS_INVALIDOS | — | API | ✔️ Passou | Postman | 422 `DADOS_INVALIDOS` com `campos` (lista de {campo, mensagem}) para `cliente.nome`, `cliente.email` e `cliente.cep`, como descreve a documentação. |
-| 38 | CEP é devolvido normalizado na resposta do pedido | — | API | ✔️ Passou | [print](../evidencias/BUG-003-api-pedidos-quantidade-6.png) | CEP devolvido sem hífen (`01310100`). Tratado como normalização intencional (ambiguidade #13). |
+| 38 | CEP é devolvido normalizado na resposta do pedido | — | API | ✔️ Passou | [print](../evidencias/CA-CEP-normalizado-resposta-pedido.png) | CEP devolvido sem hífen (`01310100`). Tratado como normalização intencional (ambiguidade #13). |
 | 39 | Não existe etapa de pagamento online | — | UI | ✔️ Passou | Automação | O checkout pede só nome, e-mail e CEP e informa "O pagamento é feito na entrega.". |
 
 ## 6. Contrato da API e erros

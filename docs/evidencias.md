@@ -67,3 +67,4 @@ Execução em 07 e 08/10/2026.
 | `BUG-005-api-pedidos-email-emoji.png` | **BUG-005** | `POST /api/pedidos` retorna 201 com `email@email.😀` |
 | `CA10-ui-limite-5-todos-produtos.png` | CA10 *(passou)* | A interface desabilita o botão "+" ao atingir 5 unidades nos 8 produtos |
 | `MANUAL-ui-pedido-confirmado-5-camisetas.png` | Pedido válido *(passou)* | Pedido `VZ-298028` confirmado na interface com dados válidos |
+| `CA-CEP-normalizado-resposta-pedido.png` | Cenário #38 / CEP | Requisição com CEP `01310-100` e resposta do pedido com CEP normalizado para 01310100 |
