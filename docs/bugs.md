@@ -2,7 +2,7 @@
 
 Antes de reportar, conferi a seção "Sobre este ambiente" da documentação (carrinho só na aba, pedidos não armazenados, sem e-mail/cobrança, dados fixos, API sem estado). Nenhum dos bugs abaixo se enquadra nesses comportamentos esperados.
 
-Ambiente: Verzel Store v2.3.0 (card VZS-142), Chrome (UI), Postman e Playwright (API), execução em 07 e 08/10/2026.
+Ambiente: Verzel Store v2.3.0 (card VZS-142), Chrome (UI), Bruno/Insomnia e Playwright (API), execução em 07 e 08/10/2026.
 
 ## Resumo
 

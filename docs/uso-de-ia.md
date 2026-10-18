@@ -3,7 +3,7 @@
 Ferramenta e abordagem
 Usei o **Claude (Anthropic), por meio do chat**, como ferramenta de apoio em diferentes etapas do teste técnico: VZS-142 — cupom de desconto e frete grátis.
 
-A IA não acessou diretamente a loja nem a API. As análises foram realizadas a partir da documentação, do HTML das telas, das respostas obtidas no Postman, das capturas de tela e das saídas dos testes que compartilhei durante o desenvolvimento. Toda a execução contra a Verzel Store foi realizada por mim.
+A IA não acessou diretamente a loja nem a API. As análises foram realizadas a partir da documentação, do HTML das telas, das respostas obtidas no Bruno e no Insomnia, das capturas de tela e das saídas dos testes que compartilhei durante o desenvolvimento. Toda a execução contra a Verzel Store foi realizada por mim.
 
 A IA foi utilizada como apoio à análise, elaboração e revisão dos artefatos. As sugestões não foram consideradas corretas automaticamente: foram avaliadas conforme os requisitos, o comportamento observado e os resultados das execuções.
 
@@ -60,7 +60,7 @@ Minha atuação no projeto incluiu:
 
  - leitura da documentação e interpretação dos critérios de aceite;
  - execução manual da loja e captura de evidências;
- - chamadas à API pelo Postman e registro das respostas;
+ - chamadas à API pelo Bruno e pelo Insomnia e registro das respostas;
  - inspeção do HTML das telas e do sessionStorage para apoiar a identificação de seletores;
  - execução das suítes automatizadas, análise das falhas e ajustes no código;
  - investigação e documentação do BUG-004 durante a exploração da API;

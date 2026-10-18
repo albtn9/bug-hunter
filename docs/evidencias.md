@@ -6,7 +6,7 @@ Interpretei "evidências da execução" como a prova da execução como um todo,
 
 - **Bugs:** cada bug tem print ou resposta da API (seção 2) e está detalhado em [`bugs.md`](bugs.md).
 - **Cenários cobertos pela automação:** a tabela de [`execucao-manual.md`](execucao-manual.md) aponta o spec, e a seção 1 traz o resultado da execução e os prints do relatório.
-- **Cenários executados no Postman:** o resultado fica registrado na coluna "Observações" da tabela de execução manual e, quando houve divergência, nos prints da seção 2.
+- **Cenários executados no Bruno e no Insomnia:** o resultado fica na coluna "Observações" da tabela de execução manual, e as requisições e respostas ficam em [`api-respostas.md`](../evidencias/api-respostas.md). Quando houve divergência, também há print (seção 2).
 - **Principais cenários de UI que passaram:** têm print (seção 2).
 
 ## 1. Automação (Playwright)
@@ -67,4 +67,5 @@ Execução em 07 e 08/10/2026.
 | `BUG-005-api-pedidos-email-emoji.png` | **BUG-005** | `POST /api/pedidos` retorna 201 com `email@email.😀` |
 | `CA10-ui-limite-5-todos-produtos.png` | CA10 *(passou)* | A interface desabilita o botão "+" ao atingir 5 unidades nos 8 produtos |
 | `MANUAL-ui-pedido-confirmado-5-camisetas.png` | Pedido válido *(passou)* | Pedido `VZ-298028` confirmado na interface com dados válidos |
+| `api-respostas.md` | Cenários de API | Requisições e respostas dos cenários executados no Bruno e no Insomnia, por número de cenário |
 | `CA-CEP-normalizado-resposta-pedido.png` | Cenário #38 / CEP | Requisição com CEP `01310-100` e resposta do pedido com CEP normalizado para 01310100 |

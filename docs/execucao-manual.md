@@ -4,7 +4,7 @@
 
 Execução em 07 e 08/10/2026. A tabela segue os arquivos de [`cenarios/`](cenarios).
 
-**Evidência:** *print* abre a imagem em [`evidencias/`](../evidencias); *Automação* é teste do Playwright ([`evidencias.md`](evidencias.md)); *Postman* é chamada manual, com o resultado na observação; *UI (manual)* é execução na tela, com o resultado na observação.
+**Evidência:** *print* abre a imagem em [`evidencias/`](../evidencias); *Automação* é teste do Playwright ([`evidencias.md`](evidencias.md)); *respostas* abre [`api-respostas.md`](../evidencias/api-respostas.md), com as requisições e respostas feitas no Bruno e no Insomnia; *UI (manual)* é execução na tela, com o resultado na observação.
 
 ## 1. Cupom de desconto
 
@@ -17,7 +17,7 @@ Arquivo: `01-cupom-desconto.feature`
 | 03 | Códigos com espaço no meio ou vazios não aplicam desconto | CA02 | UI + API | ✔️ Passou | UI (manual) | UI: cupom vazio exibe "Informe um cupom."; `BEM VINDO10` é inválido. API: cupom só com espaços não aplica desconto (`aplicado: false`, desconto R$ 0,00). |
 | 04 | Cupom inexistente exibe "Cupom inválido." e não desconta | CA03 | UI + API | ✔️ Passou | Automação | UI exibe "Cupom inválido." (role alert), desconto R$ 0,00 e total inalterado. API também passou. |
 | 05 | Cupom expirado exibe "Cupom expirado." e não desconta | CA04 | UI + API | ✔️ Passou | Automação | UI exibe "Cupom expirado." sem desconto. API também passou. |
-| 06 | Cupom expirado também respeita maiúsculas/minúsculas e espaços | CA04 | UI + API | ✔️ Passou | UI + Postman | Executado na UI e na API: `verao2026`, `VERAO2026`, `  VERAO2026` e `VERAO2026  ` retornam "Cupom expirado.". |
+| 06 | Cupom expirado também respeita maiúsculas/minúsculas e espaços | CA04 | UI + API | ✔️ Passou | UI + Bruno/Insomnia | Executado na UI e na API: `verao2026`, `VERAO2026`, `  VERAO2026` e `VERAO2026  ` retornam "Cupom expirado.". |
 | 07 | Não é possível acumular dois cupons | CA05 | UI | ✔️ Passou | Automação | Com cupom aplicado, o campo de cupom some e só resta "Remover cupom". |
 | 08 | Trocar de cupom removendo o atual antes | CA05 | UI | ✔️ Passou | Automação | "Remover cupom" restaura o resumo; o cupom expirado é recusado em seguida. |
 | 09 | Reaplicar o mesmo cupom não duplica o desconto | CA05 | UI | ✔️ Passou | UI (manual) | Não é possível reaplicar o mesmo cupom: o campo fica oculto enquanto há cupom aplicado. |
@@ -34,9 +34,9 @@ Arquivo: `02-frete-gratis.feature`
 | 13 | Carrinho informa quanto falta para o frete grátis | CA07 | UI | ❌ Falhou (BUG-001) | [print](../evidencias/BUG-001-ui-frete-subtotal-200-sem-cupom.png) | Com 1 mochila: "Faltam R$ 100,00". Com 2 mochilas (R$ 200,00): "Faltam R$ 0,00", mas cobra frete de R$ 19,90. |
 | 14 | Ao atingir R$ 200,00 o aviso de "falta" deixa de ser exibido | CA06 | UI | ❌ Falhou (BUG-001) | [print](../evidencias/BUG-001-ui-frete-subtotal-200-sem-cupom.png) | Exibe "Faltam R$ 0,00 para o frete grátis" e cobra frete. |
 | 15 | Frete grátis considera o subtotal ANTES do desconto | CA08 | UI + API | ❌ Falhou (BUG-001) | [print](../evidencias/BUG-001-ui-frete-subtotal-200-com-cupom.png) | Total R$ 199,90; esperado R$ 180,00. A causa está no limite de R$ 200,00. |
-| 16 | Valor faltante não considera o desconto do cupom | CA08 | API | ✔️ Passou | Postman | P005 × 1 com `BEMVINDO10`: subtotal R$ 100,00, desconto R$ 10,00, frete R$ 19,90 e `valorFaltanteFreteGratis: 100`. O valor faltante usa o subtotal antes do desconto. |
+| 16 | Valor faltante não considera o desconto do cupom | CA08 | API | ✔️ Passou | Automação | P005 × 1 com `BEMVINDO10`: subtotal R$ 100,00, desconto R$ 10,00, frete R$ 19,90 e `valorFaltanteFreteGratis: 100`. O valor faltante usa o subtotal antes do desconto. |
 | 17 | Desconto do cupom não incide sobre o frete | CA09 | UI + API | ✔️ Passou | [print](../evidencias/BUG-001-ui-frete-subtotal-200-com-cupom.png) | Com 2 mochilas: desconto de R$ 20,00 só sobre os produtos. |
-| 18 | Subtotal logo abaixo de R$ 200,00 mantém o frete mesmo com cupom | CA08 | API | ✔️ Passou | Postman | Subtotal 199,80, desconto 19,98, frete 19,90, `freteGratis: false`, faltante 0,20 e total 199,72. O frete considera o subtotal antes do desconto. |
+| 18 | Subtotal logo abaixo de R$ 200,00 mantém o frete mesmo com cupom | CA08 | API | ✔️ Passou | [respostas](../evidencias/api-respostas.md#cenário-18) | Subtotal 199,80, desconto 19,98, frete 19,90, `freteGratis: false`, faltante 0,20 e total 199,72. O frete considera o subtotal antes do desconto. |
 
 ## 3. Limite de 5 unidades por produto
 
@@ -49,7 +49,7 @@ Arquivo: `03-limite-quantidade.feature`
 | 21 | Interface impede aumentar a quantidade para além de 5 no carrinho | CA10 | UI | ✔️ Passou | [print](../evidencias/CA10-ui-limite-5-todos-produtos.png) | Não há campo numérico; só botões "-" e "+". |
 | 22 | API valida o limite de quantidade | CA10 | API | ❌ Falhou (BUG-002) | [print](../evidencias/BUG-002-api-calcular-quantidade-6.png) | 6, 12, 21 e 100 unidades aceitas (200). Valores inválidos (0, -1, 1.5, "2", null) retornam 422 corretamente. |
 | 23 | API também aplica o limite ao confirmar o pedido | CA10 | API | ❌ Falhou (BUG-003) | [print](../evidencias/BUG-003-api-pedidos-quantidade-6.png) | 201 Created, pedido VZ-908998 com 6 unidades. |
-| 24 | Mesmo produto repetido na lista é rejeitado como duplicado | CA10 | API | ✔️ Passou | Postman | P004 repetido (6+6, 3+2 e 1+0) retorna `ITEM_DUPLICADO`, com `campo: "itens[1].produtoId"`. |
+| 24 | Mesmo produto repetido na lista é rejeitado como duplicado | CA10 | API | ✔️ Passou | [respostas](../evidencias/api-respostas.md#cenário-24) | Produto repetido na lista retorna `ITEM_DUPLICADO` com `campo: "itens[1].produtoId"` (P002 com 1+2; também P004 em 6+6, 3+2 e 1+0). |
 
 ## 4. Cálculo do total
 
@@ -71,12 +71,12 @@ Arquivo: `05-dados-do-cliente.feature`
 | 29 | Pedido confirmado com dados válidos | — | UI + API | ✔️ Passou | [print](../evidencias/MANUAL-ui-pedido-confirmado-5-camisetas.png) | Pedido VZ-298028 (UI). Na API, 201 com número no formato VZ-000000. |
 | 30 | Pedido com cupom válido confirma com desconto | — | API | ✔️ Passou | Automação | Resumo do pedido igual ao cálculo do carrinho. |
 | 31 | Pedido com cupom inválido ou expirado é recusado | — | API | ✔️ Passou | Automação | 422 `CUPOM_INVALIDO` e `CUPOM_EXPIRADO`. |
-| 32 | Validação do nome (precisa de nome e sobrenome) | — | UI + API | ✔️ Passou | Automação + Postman | "Maria" e vazio são recusados; "Maria Silva" e "Maria de Souza" são aceitos. |
-| 33 | Nomes nos limites da regra | — | UI + API | ✔️ Passou | Postman | `" Maria "` recusado (espaços ignorados); `"Maria  Silva"` aceito e devolvido com 2 espaços; `"Maria S"` recusado ("Informe nome e sobrenome."); `"123 456"` aceito. Na UI também são aceitos emoji e caracteres especiais (ambiguidade #15). |
+| 32 | Validação do nome (precisa de nome e sobrenome) | — | UI + API | ✔️ Passou | Automação + [respostas](../evidencias/api-respostas.md#cenário-32) | "Maria" e vazio são recusados; "Maria Silva" e "Maria de Souza" são aceitos. |
+| 33 | Nomes nos limites da regra | — | UI + API | ✔️ Passou | [respostas](../evidencias/api-respostas.md#cenário-33) | `" Maria "` recusado (espaços ignorados); `"Maria  Silva"` aceito e devolvido com 2 espaços; `"Maria S"` recusado ("Informe nome e sobrenome."); `"123 456"` aceito. Na UI também são aceitos emoji e caracteres especiais (ambiguidade #15). |
 | 34 | Validação do e-mail | — | UI + API | ❌ Falhou (BUG-005) | [print](../evidencias/BUG-005-ui-email-emoji.png) | UI recusa `maria`, `maria@` e `@exemplo.com`; API recusa `maria`, `maria@`, `maria exemplo.com` e `maria@@exemplo.com` (`DADOS_INVALIDOS`). Porém `email@email.😀` é aceito na UI e na API. |
-| 35 | E-mails nos limites da regra | — | UI + API | ✔️ Passou | Postman | `maria@exemplo` recusado (422); `maria@exemplo.c` aceito (201, extensão de 1 letra); `" maria@exemplo.com"` (espaço no início) sem erro de e-mail. Ver ambiguidade #16 e BUG-005. |
-| 36 | Validação do CEP (8 dígitos, com ou sem hífen) | — | UI + API | ✔️ Passou | Automação + Postman | `01310-100` e `01310100` aceitos (CEP devolvido sem hífen); recusados com "Informe um CEP com 8 dígitos.": `0131010`, `013101000`, `01310-1000`, `0131-0100`, `01310-10a` e `abcdefgh`; vazio e `" "` retornam "Informe o CEP.". |
-| 37 | Dados do cliente inválidos retornam DADOS_INVALIDOS | — | API | ✔️ Passou | Postman | 422 `DADOS_INVALIDOS` com `campos` (lista de {campo, mensagem}) para `cliente.nome`, `cliente.email` e `cliente.cep`, como descreve a documentação. |
+| 35 | E-mails nos limites da regra | — | UI + API | ✔️ Passou | [respostas](../evidencias/api-respostas.md#cenário-35) | `maria@exemplo` recusado (422 `DADOS_INVALIDOS` em `cliente.email`); `maria@exemplo.c` aceito (201, extensão de 1 letra); `" maria@exemplo.com"` (espaço no início) aceito (201) e devolvido sem o espaço (`maria@exemplo.com`). Ver ambiguidade #16 e BUG-005. |
+| 36 | Validação do CEP (8 dígitos, com ou sem hífen) | — | UI + API | ✔️ Passou | Automação + [respostas](../evidencias/api-respostas.md#cenário-36) | `01310-100` e `01310100` aceitos (CEP devolvido sem hífen); recusados com "Informe um CEP com 8 dígitos.": `0131010`, `013101000`, `01310-1000`, `0131-0100`, `01310-10a` e `abcdefgh`; vazio e `" "` retornam "Informe o CEP.". |
+| 37 | Dados do cliente inválidos retornam DADOS_INVALIDOS | — | API | ✔️ Passou | [respostas](../evidencias/api-respostas.md#cenário-37) | 422 `DADOS_INVALIDOS` com `campos` (lista de {campo, mensagem}) para `cliente.nome`, `cliente.email` e `cliente.cep`, como descreve a documentação. |
 | 38 | CEP é devolvido normalizado na resposta do pedido | — | API | ✔️ Passou | [print](../evidencias/CA-CEP-normalizado-resposta-pedido.png) | CEP devolvido sem hífen (`01310100`). Tratado como normalização intencional (ambiguidade #13). |
 | 39 | Não existe etapa de pagamento online | — | UI | ✔️ Passou | Automação | O checkout pede só nome, e-mail e CEP e informa "O pagamento é feito na entrega.". |
 
@@ -87,20 +87,20 @@ Arquivo: `06-api-contrato-e-erros.feature`
 | # | Cenário | CA | Tipo | Resultado | Evidência | Observações |
 |---:|---|---|---|---|---|---|
 | 40 | Listar produtos | — | API | ✔️ Passou | Automação | Os 8 produtos retornam com o contrato e os preços da documentação. |
-| 41 | Consultar produto por id | — | API | ✔️ Passou | Postman | GET P001 e P008 retornam 200 com id, nome, descricao, categoria e preco; P999 e p001 retornam `PRODUTO_NAO_ENCONTRADO` (os ids diferenciam maiúsculas e minúsculas). |
+| 41 | Consultar produto por id | — | API | ✔️ Passou | [respostas](../evidencias/api-respostas.md#cenário-41) | GET P001 e P008 retornam 200 com id, nome, descricao, categoria e preco; P999 e p001 retornam `PRODUTO_NAO_ENCONTRADO` (os ids diferenciam maiúsculas e minúsculas). |
 | 42 | Produto inexistente retorna PRODUTO_NAO_ENCONTRADO no formato padrão de erro | — | API | ✔️ Passou | Automação | O erro traz `codigo` e `mensagem` no formato padrão. |
 | 43 | Rota inexistente | — | API | ✔️ Passou | Automação | Retorna `ROTA_NAO_ENCONTRADA`. |
-| 44 | Método HTTP não permitido | — | API | ✔️ Passou | Automação + Postman | `DELETE /api/produtos/P001` retorna `METODO_NAO_PERMITIDO`. GET em `/calcular` e `/pedidos` e POST em `/produtos` também (automatizado). |
+| 44 | Método HTTP não permitido | — | API | ✔️ Passou | Automação + [respostas](../evidencias/api-respostas.md#cenário-44) | `DELETE /api/produtos/P001` retorna `METODO_NAO_PERMITIDO`. GET em `/calcular` e `/pedidos` e POST em `/produtos` também (automatizado). |
 | 45 | Corpo com JSON malformado | — | API | ✔️ Passou | Automação | Retorna `JSON_INVALIDO`. |
-| 46 | Corpo que não é um objeto JSON | — | API | ✔️ Passou | Postman | `[]`, `"teste"`, `123` e `null` retornam `JSON_INVALIDO`. `{}` é um objeto JSON válido e retorna `ITENS_OBRIGATORIOS` (caso separado). |
+| 46 | Corpo que não é um objeto JSON | — | API | ✔️ Passou | [respostas](../evidencias/api-respostas.md#cenário-46) | `[]`, `"teste"`, `123` e `null` retornam `JSON_INVALIDO`. `{}` é um objeto JSON válido e retorna `ITENS_OBRIGATORIOS` (caso separado). |
 | 47 | Lista de itens ausente ou vazia | — | API | ✔️ Passou | Automação | Retorna `ITENS_OBRIGATORIOS`. |
 | 48 | Item que não é um objeto válido | — | API | ❌ Falhou (BUG-004) | [print](../evidencias/BUG-004-api-calcular-item-vazio.png) | `[null]`, `["P001"]` e `[["P004"]]` retornam `ITEM_INVALIDO`; `{}` e `{"quantidade":1}` retornam `PRODUTO_NAO_ENCONTRADO` ("Produto undefined não encontrado."); `{"produtoId":"P001"}` retorna `QUANTIDADE_INVALIDA` (`itens[0].quantidade`). |
-| 49 | Item com produto inexistente | — | API | ✔️ Passou | Postman | P009 retorna `PRODUTO_NAO_ENCONTRADO` com `campo: "itens[1].produtoId"` quando o item inválido é o segundo da lista. |
-| 50 | Campo do erro aponta o item com problema | — | API | ✔️ Passou | Postman | P001 × 1 + P002 × 0: 422 `QUANTIDADE_INVALIDA` com `campo: "itens[1].quantidade"`. |
-| 51 | Ordem de validação quando há mais de um problema | — | API | ✔️ Passou | Postman | Quantidade inválida é reportada antes de produto inexistente; com quantidade válida, o produto inexistente é reportado. Cupom inválido vai em `cupom.mensagem` sem impedir o cálculo. A documentação não define a precedência; tratado como observação (ambiguidade #10). |
+| 49 | Item com produto inexistente | — | API | ✔️ Passou | [respostas](../evidencias/api-respostas.md#cenário-49) | P009 retorna `PRODUTO_NAO_ENCONTRADO` com `campo` apontando o índice do item: `itens[0].produtoId` na primeira posição e `itens[1].produtoId` na segunda. |
+| 50 | Campo do erro aponta o item com problema | — | API | ✔️ Passou | [respostas](../evidencias/api-respostas.md#cenário-50) | P001 × 1 + P002 × 0: 422 `QUANTIDADE_INVALIDA` com `campo: "itens[1].quantidade"`. |
+| 51 | Ordem de validação quando há mais de um problema | — | API | ✔️ Passou | [respostas](../evidencias/api-respostas.md#cenário-51) | A API valida item por item, na ordem da lista, e retorna só o primeiro erro; dentro do mesmo item, verifica o produto antes da quantidade (`P024` com quantidade `0` → `PRODUTO_NAO_ENCONTRADO`). Cupom inválido é informado em `cupom.mensagem` sem impedir o cálculo. A documentação não define a precedência; tratado como observação (ambiguidade #10). |
 | 52 | Cupom inválido ou expirado no cálculo não gera erro | — | API | ✔️ Passou | Automação | Retorna 200 sem desconto, com o motivo em `cupom.mensagem`. |
-| 53 | Valores de cupom fora do padrão | — | API | ✔️ Passou | Postman | `""` e `null` → 200 sem cupom (`cupom: null`); `123` e `true` → 200, convertidos para texto e tratados como "Cupom inválido."; `" "` → "Cupom inválido." com `codigo: ""` (diferente de `""`). Ver ambiguidade #14. |
-| 54 | Código do cupom devolvido na resposta | — | API | ✔️ Passou | Postman | Cupom válido retorna `codigo: "BEMVINDO10"` e `aplicado: true`; cupom só com espaços volta com `codigo: ""` e `aplicado: false`. |
+| 53 | Valores de cupom fora do padrão | — | API | ✔️ Passou | [respostas](../evidencias/api-respostas.md#cenário-53) | `""` e `null` → 200 sem cupom (`cupom: null`); `123` e `true` → 200, convertidos para texto e tratados como "Cupom inválido."; `" "` → "Cupom inválido." com `codigo: ""` (diferente de `""`). Ver ambiguidade #14. |
+| 54 | Código do cupom devolvido na resposta | — | API | ✔️ Passou | [respostas](../evidencias/api-respostas.md#cenário-54) | Cupom válido retorna `codigo: "BEMVINDO10"` e `aplicado: true`; cupom só com espaços volta com `codigo: ""` e `aplicado: false`. |
 | 55 | Resumo do pedido confirmado é igual ao cálculo do carrinho | — | API | ✔️ Passou | Automação | Subtotal, desconto, frete e total do pedido são idênticos aos do cálculo. |
 
 ## Sessão exploratória
