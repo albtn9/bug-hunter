@@ -1,4 +1,4 @@
-# Teste técnico QA Júnior | Verzel Store
+# Teste técnico QA | Verzel Store
 
 Validação da entrega **VZS-142 (v2.3.0): cupom de desconto e frete grátis**.
 
